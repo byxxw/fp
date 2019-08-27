@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-
+const fs = require('fs')
 
 var CARS = [
   {name: "Ferrari FF", horsepower: 660, dollar_value: 700000, in_stock: true, items: [{m: 'A'}]},
@@ -13,6 +13,21 @@ var CARS = [
 
 app.get('/', (req, res) => {
   res.json(CARS)
+})
+
+app.get(/.+?\.js$/gi, (req, res) => {
+  console.log('baseUrl', req.url)
+  fs.readFile('.' + req.url, 'utf8', function(err, data) {
+    res.send(data.toString())
+  })
+})
+
+app.get('/page', (req, res) => {
+  // console.log(fs)
+  // res.send('page')
+  fs.readFile('index.html', 'utf8', (err, data) => {
+    res.send(data.toString())
+  })
 })
 
 app.listen(3000, () => {

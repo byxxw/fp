@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>index</title>
+  
+  <!-- <script src="https://cdn.bootcss.com/lodash.js/4.17.15/lodash.core.js"></script>
+  <script src="https://cdn.bootcss.com/lodash.js/4.17.15/lodash.fp.min.js"></script> -->
+
+  <script src="https://cdn.jsdelivr.net/ramda/latest/ramda.min.js"></script>
+  <script>
+
+
+    function IO(f) {
+      this.__value = f
+    }
+
+    IO.of = function (x) {
+      return new IO(function () {
+        return x
+      })
+    }
+
+    IO.prototype.map = function (f) {
+      return new IO(R.compose(f, this.__value))
+    }
+
+    const $ = function(selector) {
+      return IO.of(document.querySelectorAll(selector))
+    }
+
+    const Maybe = function (val) {
+      this.__value = val
+
+      this.isNothing = function () {
+        return this.__value === null || this.__value === undefined
+      }
+    }
+
+    Maybe.of = function (val) {
+      return new Maybe(val)
+    }
+
+    Maybe.prototype.map = function (f) {
+      return this.isNothing() ? Maybe.of(null) : Maybe.of(f(this.__value))
+    }
+
+    window.onload = function () {
+      let h1 = $('h1').map(R.head).map(h1 => {
+        return h1
+      }).map(h1 => {
+        return h1.innerHTML
+      }).__value()
+
+      console.log('h1', h1)
+
+
+      var url = IO.of(window.location.href)
+      var toPairs = R.compose(R.map(R.split('=')), R.split('&'))
+      var params = R.compose(toPairs, R.last, R.split('?'))
+
+      function findParam (key) {
+        var filterBy = R.filter(R.compose(R.equals(key), R.head))
+        return R.map(R.compose(Maybe.of, filterBy, params), url)
+      }
+
+      var p = findParam('b')
+      console.log('ps', p.__value(), url.__value())
+
+      var concatVal = IO.of('123').map(R.split('')).map(R.head).__value()
+      console.log('concat', concatVal)
+
+    }
+
+  </script>
+</head>
+<body>
+  <h1>Index Page</h1>
+  <h1>Functor</h1>
+</body>
+</html>
